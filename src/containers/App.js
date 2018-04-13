@@ -1,22 +1,62 @@
-import React, {Component} from 'react';
+import React, {PureComponent} from 'react';
+
 import classes from './App.css';
 import Persons from '../components/Persons/Persons';
 import Cockpit from '../components/Cockpit/Cockpit';
+import Aux from '../hoc/Aux';
+import withClass from '../hoc/withClass';
 
-class App extends Component {
+export const AuthContext = React.createContext(false);
+
+class App extends PureComponent {
 
 	constructor(props) {
 		super(props);
+		console.log('[App.js] Inside Constructor', props);
+		this.state = {
+			persons: [
+				{id: 'ldkfjg', name: "Max", age: 28},
+				{id: 'perotkf', name: "Manu", age: 29},
+				{id: 'cvmbk', name: "Stephanie", age: 26}
+			],
+			showPersons: false,
+			toggleClicked: 0,
+			authenticated: false
+		}
 	}
 
-	state = {
-		persons: [
-			{id: 'ldkfjg', name: "Max", age: 28},
-			{id: 'perotkf', name: "Manu", age: 29},
-			{id: 'cvmbk', name: "Stephanie", age: 26}
-		],
-		showPersons: false
-	};
+	/*componentWillMount() {
+		console.log('[App.js] Inside componentWillMount()')
+	}*/
+
+	componentDidMount() {
+		console.log('[App.js] Inside componentDidMount()')
+	}
+
+	//shouldComponentUpdate(nextProps, nextState) {
+	//	console.log('[UPDATE App.js] Inside shouldComponentUpdate()', nextProps, nextState);
+	//  return nextProps.persons !== this.props.persons ||
+	//  nextProps.showPersons !== this.props.showPersons;
+	//	return true;
+	//}
+
+	/*componentWillUpdate(nextProps, nextState) {
+		console.log('[UPDATE App.js] Inside componentWillUpdate()', nextProps, nextState);
+	}*/
+
+	static getDerivedStateFromProps(nextProps, prevState) {
+		console.log('[UPDATE App.js] Inside getDerivedStateFromProps()', nextProps, prevState);
+		return prevState;
+	}
+
+	getSnapshotBeforeUpdate(){
+		console.log('[UPDATE App.js] Inside getSnapshotBeforeUpdate()');
+		return null;
+	}
+
+	componentDidUpdate() {
+		console.log('[UPDATE App.js] Inside componentDidUpdate()');
+	}
 
 	nameChangeHandler = (event, id) => {
 
@@ -47,12 +87,22 @@ class App extends Component {
 
 	togglePersonHandler = () => {
 		const doseShow = this.state.showPersons;
+		this.setState((prevState, props) => {
+			return {
+				showPersons: !doseShow,
+				toggleClicked: prevState.toggleClicked + 1
+			};
+		})
+	};
+
+	loginHandler = () => {
 		this.setState({
-			showPersons: !doseShow
+			authenticated: true
 		})
 	};
 
 	render() {
+		console.log('[App.js] Inside render()');
 		let persons = null;
 
 		if (this.state.showPersons) {
@@ -63,14 +113,21 @@ class App extends Component {
 		}
 
 		return (
-			<div className={classes.App}>
+			<Aux>
+				<button onClick={() => {
+					this.setState({showPersons: true})
+				}}>Show Persons
+				</button>
 				<Cockpit showPersons={this.state.showPersons}
 						 persons={this.state.persons}
+						 login={this.loginHandler}
 						 clicked={this.togglePersonHandler}/>
-				{persons}
-			</div>
+				<AuthContext.Provider value={this.state.authenticated}>
+					{persons}
+				</AuthContext.Provider>
+			</Aux>
 		);
 	}
 }
 
-export default App;
+export default withClass(App, classes.App);

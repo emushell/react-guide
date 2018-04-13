@@ -20,7 +20,7 @@ const withClass = (WrappedComponent, className) => {
 				</div>
 			);
 		}
-	}
+	};
 
 	return (
 		React.forwardRef((props, ref) => {
